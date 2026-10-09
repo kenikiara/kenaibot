@@ -1,3 +1,4 @@
+import { BASE_PATH, getAppUrl } from '@/utils/base-path';
 import { lazy, Suspense } from 'react';
 import React from 'react';
 import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router';
@@ -29,7 +30,7 @@ const LanguageHandler = ({ children }: { children: React.ReactNode }) => {
 // The static preview build is served under /bot/preview (see rsbuild.config.ts
 // assetPrefix), so React Router must resolve routes under that prefix. Standalone
 // partner deploys are served at the root, so no basename there.
-const routerBasename = isPreviewMode() ? PREVIEW_BASE_PATH : undefined;
+const routerBasename = isPreviewMode() ? PREVIEW_BASE_PATH : BASE_PATH || undefined;
 
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -83,7 +84,7 @@ function App() {
             try {
                 const authInfo = await handleOAuthCallback(window.location.href, {
                     clientId: process.env.NEXT_PUBLIC_DERIV_APP_ID || '',
-                    redirectUri: window.location.origin,
+                    redirectUri: getAppUrl(),
                     scopes: 'trade',
                 });
 
@@ -106,7 +107,7 @@ function App() {
             } catch (error) {
                 console.error('OAuth callback error:', error);
             } finally {
-                cleanupUrl(window.location.origin);
+                cleanupUrl(getAppUrl());
             }
         };
 

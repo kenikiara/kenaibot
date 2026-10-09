@@ -9,6 +9,10 @@ loadEnv({ mode: 'production' });
 
 const isStaticBuild = process.env.NEXT_PUBLIC_APP_BUILD === 'true';
 
+// Sub-path for standalone deploys that aren't at the domain root, e.g. '/kenaibot'
+// on GitHub Pages. Drives assetPrefix here and the router/OAuth paths at runtime.
+const basePath = (process.env.PUBLIC_BASE_PATH || '').replace(/\/+$/, '');
+
 // Resolve smartcharts from wherever the package actually lives so the asset
 // copy works both standalone and inside the monorepo (npm workspaces hoist the
 // package to the repo root, so a cwd-relative './node_modules/...' glob fails).
@@ -45,6 +49,7 @@ export default defineConfig({
         // Marks the static preview build (served under /bot/preview); drives the
         // router basename so React Router resolves under that path prefix.
         NEXT_PUBLIC_APP_BUILD: JSON.stringify(process.env.NEXT_PUBLIC_APP_BUILD ?? ''),
+        PUBLIC_BASE_PATH: JSON.stringify(basePath),
         GD_CLIENT_ID: JSON.stringify(process.env.GD_CLIENT_ID),
         GD_APP_ID: JSON.stringify(process.env.GD_APP_ID),
         GD_API_KEY: JSON.stringify(process.env.GD_API_KEY),
@@ -65,7 +70,7 @@ export default defineConfig({
     },
   },
   output: {
-    assetPrefix: isStaticBuild ? '/bot/preview/' : '/',
+    assetPrefix: isStaticBuild ? '/bot/preview/' : `${basePath}/`,
     distPath: {
       root: isStaticBuild ? 'out/preview' : 'dist',
     },

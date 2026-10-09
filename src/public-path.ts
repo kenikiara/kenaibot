@@ -1,3 +1,4 @@
+import { BASE_PATH } from './utils/base-path';
 import { isPreviewMode, PREVIEW_BASE_PATH } from './utils/is-preview-mode';
 
 export const getUrlBase = (path = '') => {
@@ -82,4 +83,4 @@ export { initSurvicate, setSurvicateCalledValue };
 // runtime public path — used to build asset URLs (audio, Blockly media, favicon) — must
 // carry that prefix. Standalone partner deploys are served at the root (legacy /br_* aware
 // via getUrlBase).
-setBotPublicPath(isPreviewMode() ? `${PREVIEW_BASE_PATH}/` : getUrlBase('/'));
+setBotPublicPath(isPreviewMode() ? `${PREVIEW_BASE_PATH}/` : BASE_PATH ? `${BASE_PATH}/` : getUrlBase('/'));

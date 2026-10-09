@@ -1,3 +1,4 @@
+import { withBase } from '@/utils/base-path';
 import { getImageLocation } from '../../../public-path';
 import React from 'react';
 import Text from '@/components/shared_ui/text';
@@ -36,7 +37,7 @@ export const DBOT_ONBOARDING = [
                         <Localize i18n_default_text='We also provide a guide on the Tutorial tab to show you how you can build and execute a simple strategy.' />
                     </>,
                 ]}
-                media={'/assets/videos/dbot-onboarding-tour-step-1.mp4'}
+                media={withBase('/assets/videos/dbot-onboarding-tour-step-1.mp4')}
                 step_index={1}
             />
         ),
@@ -54,7 +55,7 @@ export const DBOT_ONBOARDING = [
                         i18n_default_text='View the market price of your favourite assets.'
                     />,
                 ]}
-                media={'/assets/videos/dbot-onboarding-tour-step-2.mp4'}
+                media={withBase('/assets/videos/dbot-onboarding-tour-step-2.mp4')}
                 step_index={2}
             />
         ),
@@ -72,7 +73,7 @@ export const DBOT_ONBOARDING = [
                         i18n_default_text='Explore the video guides and FAQs to build your bot in the tutorials tab.'
                     />,
                 ]}
-                media={'/assets/videos/dbot-onboarding-tour-step-3.mp4'}
+                media={withBase('/assets/videos/dbot-onboarding-tour-step-3.mp4')}
                 step_index={3}
             />
         ),
@@ -108,7 +109,7 @@ export const DBOT_ONBOARDING = [
                         i18n_default_text='See how your bot is doing in real-time.'
                     />,
                 ]}
-                media={'/assets/videos/dbot-onboarding-tour-step-5.mp4'}
+                media={withBase('/assets/videos/dbot-onboarding-tour-step-5.mp4')}
                 step_index={5}
             />
         ),
@@ -128,7 +129,7 @@ export const DBOT_ONBOARDING = [
                         components={[<strong key={0} />]}
                     />,
                 ]}
-                media={'/assets/videos/dbot-onboarding-tour-step-6.mp4'}
+                media={withBase('/assets/videos/dbot-onboarding-tour-step-6.mp4')}
                 step_index={6}
             />
         ),
@@ -315,7 +316,7 @@ const Step4 = ({ show_label = false }) => (
         </div>
         <div>
             <video autoPlay loop controls playsInline preload='auto' disablePictureInPicture controlsList='nodownload'>
-                <source src={'/assets/videos/bot-builder-tour-step-4.mp4'} type='video/mp4' />
+                <source src={withBase('/assets/videos/bot-builder-tour-step-4.mp4')} type='video/mp4' />
             </video>
         </div>
     </div>
@@ -365,7 +366,7 @@ const Step5 = ({ show_label = false }) => (
         </div>
         <div>
             <video autoPlay loop controls playsInline preload='auto' disablePictureInPicture controlsList='nodownload'>
-                <source src={'/assets/videos/bot-builder-tour-step-5.mp4'} type='video/mp4' />
+                <source src={withBase('/assets/videos/bot-builder-tour-step-5.mp4')} type='video/mp4' />
             </video>
         </div>
     </div>
@@ -505,7 +506,7 @@ export const DBOT_ONBOARDING_MOBILE: TMobileTourConfig[] = [
                 />
             </span>,
         ],
-        media: '/assets/videos/dbot-mobile-onboarding-step-1.mp4',
+        media: withBase('/assets/videos/dbot-mobile-onboarding-step-1.mp4'),
         tour_step_key: 2,
     },
     {
@@ -518,7 +519,7 @@ export const DBOT_ONBOARDING_MOBILE: TMobileTourConfig[] = [
                 />
             </span>,
         ],
-        media: '/assets/videos/dbot-mobile-onboarding-step-2.mp4',
+        media: withBase('/assets/videos/dbot-mobile-onboarding-step-2.mp4'),
         tour_step_key: 3,
     },
     {
@@ -531,7 +532,7 @@ export const DBOT_ONBOARDING_MOBILE: TMobileTourConfig[] = [
                 />
             </span>,
         ],
-        media: '/assets/videos/dbot-mobile-onboarding-step-3.mp4',
+        media: withBase('/assets/videos/dbot-mobile-onboarding-step-3.mp4'),
         tour_step_key: 4,
     },
     {
@@ -549,7 +550,7 @@ export const DBOT_ONBOARDING_MOBILE: TMobileTourConfig[] = [
     },
     {
         header: <Localize i18n_default_text='Check your bot’s performance' />,
-        media: '/assets/videos/dbot-mobile-onboarding-step-5.mp4',
+        media: withBase('/assets/videos/dbot-mobile-onboarding-step-5.mp4'),
         content: [
             <span key='check-your-bots-performance-wrapper'>
                 <Localize
@@ -562,7 +563,7 @@ export const DBOT_ONBOARDING_MOBILE: TMobileTourConfig[] = [
     },
     {
         header: <Localize i18n_default_text='Run your bot' />,
-        media: '/assets/videos/dbot-mobile-onboarding-step-6.mp4',
+        media: withBase('/assets/videos/dbot-mobile-onboarding-step-6.mp4'),
         content: [
             <span key='run-your-bot-wrapper'>
                 <Localize

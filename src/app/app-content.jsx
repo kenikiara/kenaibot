@@ -1,6 +1,7 @@
 import React, { lazy, Suspense, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
 import { Bounce, ToastContainer } from 'react-toastify';
+import { BASE_PATH, withBase } from '@/utils/base-path';
 
 // react-toastify 9 sets these through defaultProps, which React 19 ignores for function
 // components; without them every toast crashes rendering an undefined transition.
@@ -129,7 +130,7 @@ const AppContent = observer(() => {
     );
 
     React.useEffect(() => {
-        setSmartChartsPublicPath(getUrlBase('/js/smartcharts/'));
+        setSmartChartsPublicPath(BASE_PATH ? withBase('/js/smartcharts/') : getUrlBase('/js/smartcharts/'));
     }, []);
 
     React.useEffect(() => {

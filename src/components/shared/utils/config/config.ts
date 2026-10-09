@@ -9,6 +9,7 @@ import {
 import type { AuthConfig } from '@/external/deriv-core';
 import { getInitialLanguage } from '@deriv-com/translations';
 import { DerivWSAccountsService } from '@/services/derivws-accounts.service';
+import { getAppUrl } from '@/utils/base-path';
 import brandConfig from '../../../../../brand.config.json';
 
 // =============================================================================
@@ -106,7 +107,7 @@ export const generateOAuthURL = async (prompt?: string): Promise<string> => {
 
         const config: AuthConfig = {
             clientId,
-            redirectUri: window.location.origin,
+            redirectUri: getAppUrl(),
             scopes: 'trade',
             // Without this a Bot deployed in ES/FR/PT sends its clients to an
             // English login (#804). `getInitialLanguage()` is the same reader

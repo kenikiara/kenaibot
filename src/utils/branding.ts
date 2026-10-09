@@ -1,9 +1,10 @@
 import brandConfig from '../../brand.config.json';
+import { withBase } from './base-path';
 
 // Candidate logo paths, in priority order. Only used as a blind-probe fallback for
 // apps assembled by an older BFF that didn't record platform.logo_path in
 // brand.config.json (see getLogoCandidates below).
-export const LOGO_CANDIDATES = ['/logo.png', '/logo.jpg', '/logo.jpeg', '/logo.webp'];
+export const LOGO_CANDIDATES = ['/logo.png', '/logo.jpg', '/logo.jpeg', '/logo.webp'].map(withBase);
 
 type PlatformBrand = {
     name?: string;
@@ -27,7 +28,7 @@ function getPlatform(): PlatformBrand | undefined {
 export function getLogoCandidates(): string[] {
     const platform = getPlatform() ?? {};
     if (platform.logo_path === undefined) return LOGO_CANDIDATES;
-    return platform.logo_path ? [platform.logo_path] : [];
+    return platform.logo_path ? [withBase(platform.logo_path)] : [];
 }
 
 /**
