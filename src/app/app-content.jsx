@@ -1,6 +1,27 @@
 import React, { lazy, Suspense, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
-import { ToastContainer } from 'react-toastify';
+import { Bounce, ToastContainer } from 'react-toastify';
+
+// react-toastify 9 sets these through defaultProps, which React 19 ignores for function
+// components; without them every toast crashes rendering an undefined transition.
+const ToastCloseButton = ({ closeToast }) => (
+    <button type='button' className='Toastify__close-button' aria-label='close' onClick={closeToast}>
+        ×
+    </button>
+);
+
+const TOAST_DEFAULTS = {
+    position: 'top-right',
+    transition: Bounce,
+    autoClose: 5000,
+    closeButton: ToastCloseButton,
+    pauseOnHover: true,
+    pauseOnFocusLoss: true,
+    closeOnClick: true,
+    draggablePercent: 80,
+    draggableDirection: 'x',
+    role: 'alert',
+};
 import AuthLoadingWrapper from '@/components/auth-loading-wrapper';
 import { botNotification } from '@/components/bot-notification/bot-notification';
 import useLiveChat from '@/components/chat/useLiveChat';
@@ -200,7 +221,12 @@ const AppContent = observer(() => {
                             <BotBuilder />
                             <BotStopped />
                             <TransactionDetailsModal />
-                            <ToastContainer limit={3} draggable={false} />
+                            <ToastContainer
+                                {...TOAST_DEFAULTS}
+                                theme={is_dark_mode_on ? 'dark' : 'light'}
+                                limit={3}
+                                draggable={false}
+                            />
                         </div>
                     </ThemeProvider>
                 </AuthLoadingWrapper>

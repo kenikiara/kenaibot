@@ -33,10 +33,13 @@ import {
 import {
     LabelPairedChartLineCaptionRegularIcon,
     LabelPairedArrowsRotateCaptionRegularIcon,
+    LabelPairedArrowUpArrowDownCaptionRegularIcon,
     LabelPairedChartCandlestickCaptionRegularIcon,
     LabelPairedChartMixedCaptionRegularIcon,
+    LabelPairedGaugeMaxCaptionRegularIcon,
     LabelPairedObjectsColumnCaptionRegularIcon,
     LabelPairedPuzzlePieceTwoCaptionBoldIcon,
+    LabelPairedTrophyCaptionRegularIcon,
 } from '@deriv/quill-icons/LabelPaired';
 import { LegacyGuide1pxIcon } from '@deriv/quill-icons/Legacy';
 import { Localize, localize } from '@deriv-com/translations';
@@ -49,6 +52,9 @@ import './main.scss';
 
 const ChartWrapper = lazy(() => import('../chart/chart-wrapper'));
 const Scanner = lazy(() => import('../scanner'));
+const EvenOddSession = lazy(() => import('../even-odd-session/even-odd-session'));
+const OverUnder = lazy(() => import('../over-under/over-under'));
+const MillionBot = lazy(() => import('../million-bot/million-bot'));
 const ManualTrader = lazy(() => import('../trading/manual-trader'));
 const AutoTrades = lazy(() => import('../trading/auto-trades'));
 const Tutorial = lazy(() => import('../tutorials'));
@@ -84,7 +90,18 @@ const AppWrapper = observer(() => {
     const { clear } = summary_card;
     const { DASHBOARD, BOT_BUILDER } = DBOT_TABS;
     const init_render = React.useRef(true);
-    const hash = ['dashboard', 'bot_builder', 'chart', 'scanner', 'manual_trader', 'auto_trades', 'tutorial'];
+    const hash = [
+        'dashboard',
+        'bot_builder',
+        'chart',
+        'scanner',
+        'even_odd_session',
+        'over_under',
+        'million_bot',
+        'manual_trader',
+        'auto_trades',
+        'tutorial',
+    ];
     const { isDesktop } = useDevice();
     const location = useLocation();
     const navigate = useNavigate();
@@ -456,6 +473,63 @@ const AppWrapper = observer(() => {
                             <div
                                 label={
                                     <>
+                                        <LabelPairedGaugeMaxCaptionRegularIcon
+                                            height='24px'
+                                            width='24px'
+                                            fill='var(--text-general)'
+                                        />
+                                        <Localize i18n_default_text='Even/Odd Session' />
+                                    </>
+                                }
+                                id='id-even-odd-session'
+                            >
+                                <Suspense
+                                    fallback={<ChunkLoader message={localize('Please wait, loading session...')} />}
+                                >
+                                    <EvenOddSession />
+                                </Suspense>
+                            </div>
+                            <div
+                                label={
+                                    <>
+                                        <LabelPairedArrowUpArrowDownCaptionRegularIcon
+                                            height='24px'
+                                            width='24px'
+                                            fill='var(--text-general)'
+                                        />
+                                        <Localize i18n_default_text='Over/Under' />
+                                    </>
+                                }
+                                id='id-over-under'
+                            >
+                                <Suspense
+                                    fallback={<ChunkLoader message={localize('Please wait, loading Over/Under...')} />}
+                                >
+                                    <OverUnder />
+                                </Suspense>
+                            </div>
+                            <div
+                                label={
+                                    <>
+                                        <LabelPairedTrophyCaptionRegularIcon
+                                            height='24px'
+                                            width='24px'
+                                            fill='var(--text-general)'
+                                        />
+                                        <Localize i18n_default_text='Million Bot' />
+                                    </>
+                                }
+                                id='id-million-bot'
+                            >
+                                <Suspense
+                                    fallback={<ChunkLoader message={localize('Please wait, loading Million Bot...')} />}
+                                >
+                                    <MillionBot />
+                                </Suspense>
+                            </div>
+                            <div
+                                label={
+                                    <>
                                         <LabelPairedChartCandlestickCaptionRegularIcon
                                             height='24px'
                                             width='24px'
@@ -466,7 +540,9 @@ const AppWrapper = observer(() => {
                                 }
                                 id='id-manual-trader'
                             >
-                                <Suspense fallback={<ChunkLoader message={localize('Please wait, loading trader...')} />}>
+                                <Suspense
+                                    fallback={<ChunkLoader message={localize('Please wait, loading trader...')} />}
+                                >
                                     <ManualTrader />
                                 </Suspense>
                             </div>
@@ -483,7 +559,9 @@ const AppWrapper = observer(() => {
                                 }
                                 id='id-auto-trades'
                             >
-                                <Suspense fallback={<ChunkLoader message={localize('Please wait, loading auto trades...')} />}>
+                                <Suspense
+                                    fallback={<ChunkLoader message={localize('Please wait, loading auto trades...')} />}
+                                >
                                     <AutoTrades />
                                 </Suspense>
                             </div>

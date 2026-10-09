@@ -1,4 +1,4 @@
-import { toast } from 'react-toastify';
+import { botNotification } from '@/components/bot-notification/bot-notification';
 import { localize } from '@deriv-com/translations';
 import { getSides, TScanMode } from './scanner-engine';
 import { scannerFeed, TMarket } from './scanner-feed';
@@ -61,7 +61,7 @@ const checkMarket = (market: TMarket) => {
             side: side.label,
             count: config.streak,
         });
-        toast.info(message, { autoClose: 6000 });
+        botNotification(message);
         beep();
         if ('Notification' in window && Notification.permission === 'granted' && document.hidden) {
             try {

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useSyncExternalStore } from 'react';
 import classNames from 'classnames';
-import { toast } from 'react-toastify';
+import { botNotification } from '@/components/bot-notification/bot-notification';
 import { generateOAuthURL } from '@/components/shared';
 import { useApiBase } from '@/hooks/useApiBase';
 import { Localize, localize } from '@deriv-com/translations';
@@ -120,9 +120,9 @@ const ManualTrader = () => {
                       amount: Math.abs(result.profit).toFixed(2),
                       currency: result.currency,
                   });
-            (result.is_win ? toast.success : toast.error)(message, { autoClose: 2500 });
+            botNotification(message, undefined, { autoClose: 2500 });
         } catch (error) {
-            toast.error((error as Error).message);
+            botNotification((error as Error).message);
         } finally {
             setBuying(null);
         }

@@ -78,6 +78,25 @@
                 background: var(--general-section-1);
                 justify-content: start;
 
+                // Leave room for the run panel and scroll when the tabs don't fit
+                @include desktop-screen {
+                    &--main__tabs {
+                        max-width: calc(100% - 38rem);
+                        overflow-x: auto;
+                        overflow-y: hidden;
+                        scrollbar-width: none;
+
+                        &::-webkit-scrollbar {
+                            display: none;
+                        }
+
+                        .dc-tabs__item {
+                            flex-shrink: 0;
+                            padding: 0 1.4rem;
+                        }
+                    }
+                }
+
                 @include mobile-or-tablet-screen {
                     overflow-x: auto;
                     overflow-y: hidden;
