@@ -57,7 +57,15 @@ export default class AppStore {
         if (!this.dbot_store) return;
 
         blockly_store.setLoading(true);
-        await DBot.initWorkspace('/', this.dbot_store, this.api_helpers_store, ui.is_mobile, false);
+        // Keep the public path set in public-path.ts (e.g. '/kenaibot/' on GitHub Pages);
+        // a hard-coded '/' here sends every later lazy chunk to the domain root.
+        await DBot.initWorkspace(
+            window.__webpack_public_path__ || '/',
+            this.dbot_store,
+            this.api_helpers_store,
+            ui.is_mobile,
+            false
+        );
 
         blockly_store.setContainerSize();
         blockly_store.setLoading(false);
