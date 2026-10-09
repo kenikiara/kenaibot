@@ -32,6 +32,9 @@ import {
 } from '@/utils/trade-type-modal-handler';
 import {
     LabelPairedChartLineCaptionRegularIcon,
+    LabelPairedArrowsRotateCaptionRegularIcon,
+    LabelPairedChartCandlestickCaptionRegularIcon,
+    LabelPairedChartMixedCaptionRegularIcon,
     LabelPairedObjectsColumnCaptionRegularIcon,
     LabelPairedPuzzlePieceTwoCaptionBoldIcon,
 } from '@deriv/quill-icons/LabelPaired';
@@ -45,6 +48,9 @@ import RunStrategy from '../dashboard/run-strategy';
 import './main.scss';
 
 const ChartWrapper = lazy(() => import('../chart/chart-wrapper'));
+const Scanner = lazy(() => import('../scanner'));
+const ManualTrader = lazy(() => import('../trading/manual-trader'));
+const AutoTrades = lazy(() => import('../trading/auto-trades'));
 const Tutorial = lazy(() => import('../tutorials'));
 
 const AppWrapper = observer(() => {
@@ -78,7 +84,7 @@ const AppWrapper = observer(() => {
     const { clear } = summary_card;
     const { DASHBOARD, BOT_BUILDER } = DBOT_TABS;
     const init_render = React.useRef(true);
-    const hash = ['dashboard', 'bot_builder', 'chart', 'tutorial'];
+    const hash = ['dashboard', 'bot_builder', 'chart', 'scanner', 'manual_trader', 'auto_trades', 'tutorial'];
     const { isDesktop } = useDevice();
     const location = useLocation();
     const navigate = useNavigate();
@@ -426,6 +432,59 @@ const AppWrapper = observer(() => {
                                     fallback={<ChunkLoader message={localize('Please wait, loading chart...')} />}
                                 >
                                     <ChartWrapper show_digits_stats={false} />
+                                </Suspense>
+                            </div>
+                            <div
+                                label={
+                                    <>
+                                        <LabelPairedChartMixedCaptionRegularIcon
+                                            height='24px'
+                                            width='24px'
+                                            fill='var(--text-general)'
+                                        />
+                                        <Localize i18n_default_text='Scanner' />
+                                    </>
+                                }
+                                id='id-scanner'
+                            >
+                                <Suspense
+                                    fallback={<ChunkLoader message={localize('Please wait, loading scanner...')} />}
+                                >
+                                    <Scanner />
+                                </Suspense>
+                            </div>
+                            <div
+                                label={
+                                    <>
+                                        <LabelPairedChartCandlestickCaptionRegularIcon
+                                            height='24px'
+                                            width='24px'
+                                            fill='var(--text-general)'
+                                        />
+                                        <Localize i18n_default_text='Manual Trader' />
+                                    </>
+                                }
+                                id='id-manual-trader'
+                            >
+                                <Suspense fallback={<ChunkLoader message={localize('Please wait, loading trader...')} />}>
+                                    <ManualTrader />
+                                </Suspense>
+                            </div>
+                            <div
+                                label={
+                                    <>
+                                        <LabelPairedArrowsRotateCaptionRegularIcon
+                                            height='24px'
+                                            width='24px'
+                                            fill='var(--text-general)'
+                                        />
+                                        <Localize i18n_default_text='Auto Trades' />
+                                    </>
+                                }
+                                id='id-auto-trades'
+                            >
+                                <Suspense fallback={<ChunkLoader message={localize('Please wait, loading auto trades...')} />}>
+                                    <AutoTrades />
                                 </Suspense>
                             </div>
                             <div
