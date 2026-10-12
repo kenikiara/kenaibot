@@ -1,0 +1,330 @@
+[
+    {
+        "id": "updated_bandwagon_bot_____1",
+        "name": "Updated Versatile Bot",
+        "description": "A Bot that can be used in Any Market and has speed.",
+        "category": "free",
+        "position": 1,
+        "file": "updated_bandwagon_bot_____1.xml"
+    },
+    {
+        "id": "entry_searcher_bot__1",
+        "name": "Entry searcher Bot",
+        "description": "A Bot that can be used in Any Market and has speed. More so it has Entry Point Number.",
+        "category": "free",
+        "position": 2,
+        "file": "entry_searcher_bot__1.xml"
+    },
+    {
+        "id": "under_trend_bot_version__1",
+        "name": "3. Under Trend Bot Version",
+        "description": "The Bot that switches on Over Under Markets aligning with the winning side Only.",
+        "category": "free",
+        "position": 3,
+        "file": "under_trend_bot_version__1.xml"
+    },
+    {
+        "id": "even_botter___1",
+        "name": "4. Even Botter",
+        "description": "The Bot that trades even. But incase of 2 consecutive losses in a row it switches to odd to recover.",
+        "category": "free",
+        "position": 4,
+        "file": "even_botter___1.xml"
+    },
+    {
+        "id": "over_1_recover_under_7___1",
+        "name": "5. Over 1 Recover Under 7",
+        "description": "A  bot that starts trading Over 1 market but incase of 1 loss it trades Under 7 to Recover.",
+        "category": "free",
+        "position": 5,
+        "file": "over_1_recover_under_7___1.xml"
+    },
+    {
+        "id": "rise_and_fall_copier_bot__1",
+        "name": "Rise and fall copier Bot",
+        "description": "The Bot that opens Trades with Rise . But incase of 2 Consecutives Losses with Rise trend, it recovers with fall trade and then it switches back to the initial Condition of Rise.",
+        "category": "free",
+        "position": 6,
+        "file": "rise_and_fall_copier_bot__1.xml"
+    },
+    {
+        "id": "equal_even_odd_bot__1",
+        "name": "7. Equal Even Odd Bot",
+        "description": "A bot that trades even odd while alternating regardless of winning or loosing trade.",
+        "category": "free",
+        "position": 7,
+        "file": "equal_even_odd_bot__1.xml"
+    },
+    {
+        "id": "no_analysis_even_odd_trend_bot___1",
+        "name": "8. No Analysis Even Odd Trend Bot",
+        "description": "The Bot that switches on Even Trades trades aligning with the winning side Only.",
+        "category": "free",
+        "position": 8,
+        "file": "no_analysis_even_odd_trend_bot___1.xml"
+    },
+    {
+        "id": "over_2__over_3_recovery_bot__1",
+        "name": "9. Over 2 Recovery Over 3",
+        "description": "The Bot starts trading over 2 but incase of Loss it trades Over 3 to recover. Once it wins it goes back to the initial condition of over 2.",
+        "category": "free",
+        "position": 9,
+        "file": "over_2__over_3_recovery_bot__1.xml"
+    },
+    {
+        "id": "over_1_recovery_over_4___1",
+        "name": "10. Over 1 Recovery Over 4",
+        "description": "The Bot that trades Over 1 but incase of a single Loss it recovers with a trade of Over 4.",
+        "category": "free",
+        "position": 10,
+        "file": "over_1_recovery_over_4___1.xml"
+    },
+    {
+        "id": "double_differs_exclude_red_and_green___2",
+        "name": "11. Double Differs Exclude Red and Green Bot",
+        "description": "This is a No analysis Bot. It trades Differs Markets Only. the Only thing you need to Customize is the green bar and Red bar as per the Current market.",
+        "category": "automated",
+        "position": 11,
+        "file": "double_differs_exclude_red_and_green___2.xml"
+    },
+    {
+        "id": "paper_chaser_bot",
+        "name": "12. Paper Chaser Bot",
+        "description": "The bot trades Over 0 but incase of a loss it recovers with over 0 and then over 2. The Bot has 2 martingale.",
+        "category": "free",
+        "position": 12,
+        "file": "paper_chaser_bot.xml"
+    },
+    {
+        "id": "under_8_under_5_ai",
+        "name": "Under 8 Under 5",
+        "description": "In order to use this Bot please look for a market where 8 and 9 are below 10.5% and atleast 3 digits below 5 are above 10%",
+        "category": "free",
+        "position": 14,
+        "file": "under_8_under_5_ai.xml"
+    },
+    {
+        "id": "under_7_ai",
+        "name": "AI Under 7 Bot",
+        "description": "An AI-powered trading bot for over under markets",
+        "category": "free",
+        "position": 16,
+        "file": "under_7_ai.xml"
+    },
+    {
+        "id": "ai_over_1_bot",
+        "name": "AI Over 1 Bot",
+        "description": "An AI-powered trading bot for over 1 that waits for entries",
+        "category": "free",
+        "position": 17,
+        "file": "ai_over_1_bot.xml"
+    },
+    {
+        "id": "under_8_ai",
+        "name": "AI Under 8 Bot",
+        "description": "An AI-powered trading bot for under 8 that waits for entries",
+        "category": "free",
+        "position": 18,
+        "file": "under_8_ai.xml"
+    },
+    {
+        "id": "under_8_strategy",
+        "name": "Under 8 Strategy",
+        "description": "An AI-powered under 8 bot, that requires you need is to check AI Analysis if the 8 and 9 % are less than 10 % for the last 20 ticks and over 4 is above 50% run the bot",
+        "category": "free",
+        "position": 19,
+        "file": "under_8_strategy.xml"
+    },
+    {
+        "id": "over_one_strategy",
+        "name": "Over 1 Strategy",
+        "description": "An AI-powered over 1 bot, that requires you need is to check AI Analysis if the 0 and 1 % are less than 10 % for the last 100 ticks and under 6 is above 50% run the bot",
+        "category": "free",
+        "position": 20,
+        "file": "over_one_strategy.xml"
+    },
+    {
+        "id": "over_3_strategy",
+        "name": "Over 3 Strategy",
+        "description": "An AI-powered Over 3 bot, that requires you need is to check DAnalysis if the 0 and 1 and 3 are less than 10 % for the last 1000 ticks",
+        "category": "free",
+        "position": 21,
+        "file": "over_3_strategy.xml"
+    },
+    {
+        "id": "matches_bot__1",
+        "name": "Matches Bot",
+        "description": "An AI-powered bot that will assist you in matches strategy",
+        "category": "free",
+        "position": 22,
+        "file": "matches_bot__1.xml"
+    },
+    {
+        "id": "even_odd_bot",
+        "name": "Even ODD Bot",
+        "description": "An even odd bot to use for your even odd trades, it has take profit and martingale and stop loss.",
+        "category": "free",
+        "position": 23,
+        "file": "even_odd_bot.xml"
+    },
+    {
+        "id": "over_under_bot__1",
+        "name": "Over Under Bot",
+        "description": "A Over Under Bot that helps you trade over under.",
+        "category": "free",
+        "position": 24,
+        "file": "over_under_bot__1.xml"
+    },
+    {
+        "id": "rise_and_fall_simple_bot",
+        "name": "Rise and Fall Simple Bot",
+        "description": "A Rise and Fall Trading Bot",
+        "category": "free",
+        "position": 25,
+        "file": "rise_and_fall_simple_bot.xml"
+    },
+    {
+        "id": "step_indices_bot",
+        "name": "Step Indices Bot",
+        "description": "Step Indices Bot",
+        "category": "free",
+        "position": 26,
+        "file": "step_indices_bot.xml"
+    },
+    {
+        "id": "best_over_under_switcher",
+        "name": "Best Over Under Switcher",
+        "description": "Bot switches between over and under",
+        "category": "free",
+        "position": 27,
+        "file": "best_over_under_switcher.xml"
+    },
+    {
+        "id": "under_7_bulk_best",
+        "name": "Under 7 Bulk",
+        "description": "A Bot that waits for 2 digits under 7 and 1 above and takes multiple identical under 7 trades simultaneously (configurable count).",
+        "category": "free",
+        "position": 28,
+        "file": "under_7_bulk_best.xml"
+    },
+    {
+        "id": "money8gg_entry_point_bot",
+        "name": "Entry Bot",
+        "description": "A bot that only trades when the entry point is hit.",
+        "category": "free",
+        "position": 29,
+        "file": "money8gg_entry_point_bot.xml"
+    },
+    {
+        "id": "secret_strategy",
+        "name": "Secret Strategy",
+        "description": "This secret Strategy is a switcher for markets.",
+        "category": "free",
+        "position": 30,
+        "file": "secret_strategy.xml"
+    },
+    {
+        "id": "multipurpose",
+        "name": "Multipurpose",
+        "description": "This is a Martingale Bot that can be used in many markets.",
+        "category": "free",
+        "position": 31,
+        "file": "multipurpose.xml"
+    },
+    {
+        "id": "percentage_even_odd",
+        "name": "Percentage Auto Even/Odd",
+        "description": "A Bot that trades even/odd if a particular percentage is hit",
+        "category": "free",
+        "position": 32,
+        "file": "percentage_even_odd.xml"
+    },
+    {
+        "id": "consecutive_even_odd_bot",
+        "name": "Consecutive Even/Odd Bot",
+        "description": "This bot can be set to switch to the number of Even Odd trades you want.",
+        "category": "free",
+        "position": 33,
+        "file": "consecutive_even_odd_bot.xml"
+    },
+    {
+        "id": "switch_even_odd_markets_v2",
+        "name": "Christmas 2025 Even/Odd Bot",
+        "description": "This bot switches from even to odd if you lose twice on either market.",
+        "category": "free",
+        "position": 34,
+        "file": "switch_even_odd_markets_v2.xml"
+    },
+    {
+        "id": "aiwithentry",
+        "name": "AI with Entry Point",
+        "description": "An AI trading bot that lets you define entry points and martingale multipliers for strategic trading",
+        "category": "free",
+        "position": 35,
+        "file": "aiwithentry.xml"
+    },
+    {
+        "id": "accumulators_bot",
+        "name": "Accumulators Bot",
+        "description": "A specialized trading bot for accumulators with entry point functionality",
+        "category": "free",
+        "position": 36,
+        "file": "accumulators_bot.xml"
+    },
+    {
+        "id": "accumulators_bot_with_barrier",
+        "name": "Accumulators Barrier Bot",
+        "description": "An accumulators bot that exits after every 4 ticks",
+        "category": "free",
+        "position": 37,
+        "file": "accumulators_bot_with_barrier.xml"
+    },
+    {
+        "id": "switching_markets",
+        "name": "Switching Bot",
+        "description": "A Bot that Switches Between all 1(s) Markets",
+        "category": "free",
+        "position": 38,
+        "file": "switching_markets.xml"
+    },
+    {
+        "id": "same_side_over_under",
+        "name": "Same Side Over Under",
+        "description": "Over/Under bot that recovers on the same side",
+        "category": "free",
+        "position": 39,
+        "file": "same_side_over_under.xml"
+    },
+    {
+        "id": "over_single_side",
+        "name": "Over Single Side",
+        "description": "Single-side Over bot — trades only Over with martingale, no recovery",
+        "category": "free",
+        "position": 40,
+        "file": "over_single_side.xml"
+    },
+    {
+        "id": "under_single_side",
+        "name": "Under Single Side",
+        "description": "Single-side Under bot — trades only Under with martingale, no recovery",
+        "category": "free",
+        "position": 41,
+        "file": "under_single_side.xml"
+    },
+    {
+        "id": "2025_money8gg_speed_bot",
+        "name": "MONEY8GG SPEED BOT",
+        "description": "A Bot that can be used in Any Market and has speed.",
+        "category": "free",
+        "position": 42,
+        "file": "2025_money8gg_speed_bot.xml"
+    },
+    {
+        "id": "ai_bot",
+        "name": "AI Trading Bot",
+        "description": "An AI-powered trading bot that uses prediction lists for smart trading",
+        "category": "free",
+        "position": 43,
+        "file": "ai_bot.xml"
+    }
+]

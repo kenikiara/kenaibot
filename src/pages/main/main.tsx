@@ -50,6 +50,7 @@ import Dashboard from '../dashboard';
 import RunStrategy from '../dashboard/run-strategy';
 import './main.scss';
 
+const BestBots = lazy(() => import('../best-bots'));
 const ChartWrapper = lazy(() => import('../chart/chart-wrapper'));
 const Scanner = lazy(() => import('../scanner'));
 const EvenOddSession = lazy(() => import('../even-odd-session/even-odd-session'));
@@ -93,6 +94,7 @@ const AppWrapper = observer(() => {
     const hash = [
         'dashboard',
         'bot_builder',
+        'best_bots',
         'chart',
         'scanner',
         'even_odd_session',
@@ -428,6 +430,23 @@ const AppWrapper = observer(() => {
                                 }
                                 id='id-bot-builder'
                             />
+                            <div
+                                label={
+                                    <>
+                                        <LabelPairedTrophyCaptionRegularIcon
+                                            height='24px'
+                                            width='24px'
+                                            fill='var(--text-general)'
+                                        />
+                                        <Localize i18n_default_text='Best Bots' />
+                                    </>
+                                }
+                                id='id-best-bots'
+                            >
+                                <Suspense fallback={<ChunkLoader message={localize('Please wait, loading bots...')} />}>
+                                    <BestBots />
+                                </Suspense>
+                            </div>
                             <div
                                 label={
                                     <>

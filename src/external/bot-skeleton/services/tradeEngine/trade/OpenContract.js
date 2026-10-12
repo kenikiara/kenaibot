@@ -44,6 +44,25 @@ export default Engine =>
             api_base.pushSubscription(subscription);
         }
 
+        // Reports a contract bought alongside the main one (multiple identical trades) to the
+        // transactions panel and adds its result to the session totals once it settles.
+        trackExtraContract(contract_id) {
+            if (!api_base.api) return;
+            const subscription = api_base.api.onMessage().subscribe(({ data }) => {
+                if (data.msg_type !== 'proposal_open_contract') return;
+                const contract = data.proposal_open_contract;
+                if (contract?.contract_id !== contract_id) return;
+
+                broadcastContract({ accountID: api_base.account_info.loginid, ...contract });
+
+                if (contract.is_sold) {
+                    this.updateTotals(contract);
+                    subscription.unsubscribe();
+                }
+            });
+            api_base.pushSubscription(subscription);
+        }
+
         waitForAfter() {
             return new Promise(resolve => {
                 this.afterPromise = resolve;

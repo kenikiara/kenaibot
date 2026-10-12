@@ -11,3 +11,4 @@ import './text_changeCase';
 import './text_trim';
 import './text_print';
 import './text_prompt_ext';
+import './money8gg_print';

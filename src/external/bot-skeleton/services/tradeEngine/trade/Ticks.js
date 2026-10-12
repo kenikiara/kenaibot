@@ -15,11 +15,13 @@ export default Engine =>
     class Ticks extends Engine {
         async watchTicks(symbol) {
             if (symbol && this.symbol !== symbol) {
+                const previous_symbol = this.symbol;
                 this.symbol = symbol;
                 const { ticksService } = this.$scope;
 
+                // Release the listener on the market we are leaving, not the one we are joining.
                 await ticksService.stopMonitor({
-                    symbol,
+                    symbol: previous_symbol ?? symbol,
                     key: tickListenerKey,
                 });
                 const callback = ticks => {

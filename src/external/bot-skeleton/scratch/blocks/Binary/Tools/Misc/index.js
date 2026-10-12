@@ -8,3 +8,6 @@ import './total_profit';
 import './total_runs';
 import './useless_block';
 import './console';
+import './money8gg_notify';
+import './multiple_trades';
+import './one_s_markets';

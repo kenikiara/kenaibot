@@ -104,6 +104,18 @@ export default class TradeEngine extends Balance(Purchase(Sell(OpenContract(Prop
         this.makeDirectPurchaseDecision();
     }
 
+    // Switches the traded market from inside a running strategy (1s Markets block).
+    // Takes effect for the current trade options and every following run.
+    selectMarket(symbol) {
+        if (!symbol || symbol === 'disable' || !this.options) return;
+
+        this.options.symbol = symbol;
+        if (this.tradeOptions) {
+            this.tradeOptions.symbol = symbol;
+        }
+        this.watchTicks(symbol);
+    }
+
     loginAndGetBalance(token) {
         if (this.token === token) {
             return Promise.resolve();
