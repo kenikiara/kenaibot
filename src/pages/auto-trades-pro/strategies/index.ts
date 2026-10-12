@@ -9,12 +9,14 @@ import {
     rcOver4Under5,
     rcRiseFall,
 } from './patterns';
+import { osman } from './osman';
 import { aiScanner, aMatchesDiffers, matchesSignalProvider, multipleMatches, over5Under4 } from './scanners';
 import { demoEvenOdd, demoOver5, fastOverUnder, multimarket } from './virtual-gate';
 
 /** Sidebar order, grouped as on the Auto Trades sidebar. */
 export const AUTO_STRATEGIES: TStrategy[] = [
     aiScanner,
+    osman,
     multimarket,
     rcEvenOdd,
     rcOver4Under5,

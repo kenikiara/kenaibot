@@ -31,6 +31,7 @@ import {
 import { aMatchesDiffers, matchesSignalProvider, multipleMatches, over5Under4 } from '../strategies/scanners';
 import { demoEvenOdd, demoOver5, fastOverUnder, multimarket } from '../strategies/virtual-gate';
 import { AUTO_STRATEGIES } from '../strategies';
+import { osman } from '../strategies/osman';
 
 const MONEY: TMoneySettings = {
     symbol: 'R_100',
@@ -112,9 +113,9 @@ describe('nextStake', () => {
 });
 
 describe('registry', () => {
-    it('lists all 17 strategies with unique ids and valid defaults', () => {
-        expect(AUTO_STRATEGIES).toHaveLength(17);
-        expect(new Set(AUTO_STRATEGIES.map(s => s.id)).size).toBe(17);
+    it('lists all 18 strategies with unique ids and valid defaults', () => {
+        expect(AUTO_STRATEGIES).toHaveLength(18);
+        expect(new Set(AUTO_STRATEGIES.map(s => s.id)).size).toBe(18);
         AUTO_STRATEGIES.forEach(strategy => {
             strategy.fields.forEach(field => expect(strategy.defaults).toHaveProperty(field.key));
             const runtime = create(strategy);
@@ -371,5 +372,60 @@ describe('BestAccumulators', () => {
         expect(order?.legs[0]).toMatchObject({ contract_type: 'ACCU', growth_rate: 0.05 });
         expect(order?.legs[0].take_profit).toBeGreaterThan(0);
         expect(order?.shouldSell).toBeDefined();
+    });
+});
+
+describe('Osman', () => {
+    /** 1000 digits with these counts, digit 4 first so the window can slide without touching the tested digits. */
+    const history = (counts: Record<number, number>) => {
+        const order = [4, 0, 1, 2, 3, 5, 6, 7, 8, 9];
+        return order.flatMap(d => Array(counts[d]).fill(d));
+    };
+    // 0 and 1 at 9.5%, red bar on 2, green bar on 3; 9 at 10.5% so Under is off
+    const OVER_READY = { 0: 95, 1: 95, 2: 80, 3: 120, 4: 100, 5: 100, 6: 100, 7: 105, 8: 100, 9: 105 };
+    // 8 and 9 at 9.5%, red bar on 2, green bar on 3; 1 at 10.5% so Over is off
+    const UNDER_READY = { 0: 100, 1: 105, 2: 80, 3: 120, 4: 100, 5: 100, 6: 100, 7: 105, 8: 95, 9: 95 };
+
+    it('buys Over 1 when 0 and 1 are under 10.5% and the last digit is 5 or 6', () => {
+        const runtime = create(osman);
+        const { order, index } = feed(runtime, 'R_100', [2, 8, 5], { history: history(OVER_READY) });
+        expect(index).toBe(2);
+        expect(order?.legs[0]).toMatchObject({ contract_type: 'DIGITOVER', barrier: 1 });
+    });
+
+    it('buys Under 8 when 8 and 9 are under 10.5% and the last digit is 4, 7 or 9', () => {
+        const runtime = create(osman);
+        const { order, index } = feed(runtime, 'R_100', [5, 7], { history: history(UNDER_READY) });
+        expect(index).toBe(1);
+        expect(order?.legs[0]).toMatchObject({ contract_type: 'DIGITUNDER', barrier: 8 });
+    });
+
+    it('waits while a checked digit holds the red or green bar', () => {
+        // 0 is now the red bar (lowest)
+        const runtime = create(osman);
+        const counts = { ...OVER_READY, 0: 70, 2: 105, 7: 110 };
+        expect(feed(runtime, 'R_100', [5, 6], { history: history(counts) }).order).toBeNull();
+        // 5 is now the green bar
+        const runtime2 = create(osman);
+        const counts2 = { ...OVER_READY, 5: 125, 3: 95 };
+        expect(feed(runtime2, 'R_100', [6, 5], { history: history(counts2) }).order).toBeNull();
+    });
+
+    it('respects the side setting', () => {
+        const runtime = create(osman, { side: 'under' });
+        expect(feed(runtime, 'R_100', [5, 6], { history: history(OVER_READY) }).order).toBeNull();
+    });
+
+    it('stops after the set number of runs', () => {
+        const runtime = create(osman, { runs: 3 });
+        const { order } = feed(runtime, 'R_100', [5], { history: history(OVER_READY) });
+        const settle = (is_win: boolean) => {
+            const result = outcome(order!, is_win);
+            runtime.onSettled?.(result, MONEY);
+            return runtime.finishAfter?.(result);
+        };
+        expect(settle(true)).toBe(false);
+        expect(settle(false)).toBe(false);
+        expect(settle(true)).toMatch(/3 runs done/);
     });
 });

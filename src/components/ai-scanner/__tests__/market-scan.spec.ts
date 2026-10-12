@@ -7,7 +7,7 @@ jest.mock('@/components/shared/utils/config/config', () => ({
 import { evenOddSignal, overUnderShares, riseFallStats } from '@/pages/ai-analysis/analysis';
 import { lossesSurvivable, totalRisked } from '@/pages/risk-management/risk-management';
 import { TMarket } from '@/pages/scanner/scanner-feed';
-import { scanMarkets } from '../market-scan';
+import { martingaleRecovery, scanMarkets, signalHolds } from '../market-scan';
 
 const market = (symbol: string, digits: number[], quotes: number[] = []): TMarket => ({
     symbol,
@@ -48,6 +48,38 @@ describe('scanMarkets', () => {
     it('picks the leading parity for Even/Odd', () => {
         const digits = weighted([11, 9, 11, 9, 11, 9, 11, 9, 11, 9]);
         expect(scanMarkets([market('R_10', digits)], 'evenodd').signals[0].direction).toBe('Even');
+    });
+});
+
+describe('signal entry and re-check', () => {
+    it('enters Under 7 after a losing digit and stops holding once 7-9 recover', () => {
+        const cold = weighted([12, 12, 12, 12, 12, 12, 12, 6, 5, 5]);
+        const signal = scanMarkets([market('1HZ50V', cold)], 'overunder').signals[0];
+        expect(signal.entry_after).toEqual([7, 8, 9]);
+        expect(signal.contract).toEqual({ contract_type: 'DIGITUNDER', barrier: 7 });
+        expect(signalHolds(signal, market('1HZ50V', cold))).toBe(true);
+        const recovered = weighted([10, 10, 10, 10, 10, 10, 10, 10, 10, 10]);
+        expect(signalHolds(signal, market('1HZ50V', recovered))).toBe(false);
+    });
+
+    it('stops holding Even once Odd leads', () => {
+        const even = weighted([11, 9, 11, 9, 11, 9, 11, 9, 11, 9]);
+        const signal = scanMarkets([market('R_10', even)], 'evenodd').signals[0];
+        expect(signalHolds(signal, market('R_10', even))).toBe(true);
+        const odd = weighted([9, 11, 9, 11, 9, 11, 9, 11, 9, 11]);
+        expect(signalHolds(signal, market('R_10', odd))).toBe(false);
+    });
+});
+
+describe('martingaleRecovery', () => {
+    it('shows a x2 martingale falls short when a win pays under 100%', () => {
+        const r = martingaleRecovery(1.4, 2)!;
+        expect(r.recovered).toBeCloseTo(0.8);
+        expect(r.break_even).toBeCloseTo(2.5);
+    });
+
+    it('recovers a loss when a win pays about 95%', () => {
+        expect(martingaleRecovery(1.95, 2)!.recovered).toBeGreaterThan(1);
     });
 });
 

@@ -25,6 +25,9 @@ export type TScanPlan =
     | { bot: 'differs'; digit: number; trade_count: number }
     | { bot: 'risefall'; side: 'CALL' | 'PUT'; duration: number };
 
+/** The contract a signal's bot opens first, used to price it. */
+export type TScanContract = { contract_type: string; barrier?: number };
+
 export type TScanSignal = {
     trade_type: TScanType;
     symbol: string;
@@ -33,6 +36,11 @@ export type TScanSignal = {
     confidence: number;
     note: string;
     plan: TScanPlan;
+    contract: TScanContract;
+    /** Over/Under: the rule that produced the signal, re-checked while the bot runs. */
+    rule?: TOverUnderRule;
+    /** Over/Under: enter once one of these (losing) digits prints. */
+    entry_after?: number[];
     /** Matches: wait for this digit to print before entering. */
     entry_digit?: number;
     /** Single-side Over/Under: enter after 5 ticks against the trade. */
@@ -90,7 +98,7 @@ const sumFreq = (freq: number[], digits: number[]) => digits.reduce((total, d) =
 const winningDigits = (side: 'over' | 'under', barrier: number) =>
     side === 'over' ? Array.from({ length: 9 - barrier }, (_, i) => barrier + 1 + i) : Array.from({ length: barrier }, (_, i) => i);
 
-type TOverUnderRule = {
+export type TOverUnderRule = {
     side: 'over' | 'under';
     barrier: number;
     /** Every listed digit must be under 10%. */
@@ -140,13 +148,17 @@ const overUnderPlan = (rule: TOverUnderRule, symbol: string): { plan: TScanPlan;
     };
 };
 
+const rulePasses = (rule: TOverUnderRule, freq: number[]) =>
+    rule.cold ? rule.cold.every(d => freq[d] < 0.1) : (rule.hot ?? []).filter(d => freq[d] > 0.11).length >= 2;
+
+/** Digits that lose the rule's trade. */
+const losingDigits = (rule: TOverUnderRule) =>
+    [...Array(10).keys()].filter(d => (rule.side === 'over' ? d <= rule.barrier : d >= rule.barrier));
+
 const scanOverUnder = (sample: TSample): TScanSignal | null => {
     let best: TScanSignal | null = null;
     for (const rule of OVER_UNDER_RULES) {
-        const passes = rule.cold
-            ? rule.cold.every(d => sample.freq[d] < 0.1)
-            : (rule.hot ?? []).filter(d => sample.freq[d] > 0.11).length >= 2;
-        if (!passes) continue;
+        if (!rulePasses(rule, sample.freq)) continue;
 
         const confidence = Math.min(99, 100 * sumFreq(sample.freq, winningDigits(rule.side, rule.barrier)));
         if (best && confidence <= best.confidence) continue;
@@ -162,6 +174,9 @@ const scanOverUnder = (sample: TSample): TScanSignal | null => {
                 ? `${sideLabel(rule.side)} ${rule.barrier}: digits ${rule.cold.join(',')} all under 10% over ${sample.digits.length} ticks`
                 : `${sideLabel(rule.side)} ${rule.barrier}: 2+ of digits ${(rule.hot ?? []).join(',')} above 11% — enters after 5 ticks against the trade`,
             plan,
+            contract: { contract_type: rule.side === 'over' ? 'DIGITOVER' : 'DIGITUNDER', barrier: rule.barrier },
+            rule,
+            entry_after: rule.cold ? losingDigits(rule) : undefined,
             streak_entry: rule.streak_entry,
         };
     }
@@ -181,6 +196,7 @@ const scanEvenOdd = (sample: TSample): TScanSignal | null => {
         confidence: Math.min(99, 100 * sumFreq(sample.freq, is_even ? EVEN : ODD)),
         note: `${is_even ? 'Even' : 'Odd'} side leads: ${is_even ? even_hot : odd_hot} digits above 10%`,
         plan: { bot: 'evenodd', side: is_even ? 'DIGITEVEN' : 'DIGITODD' },
+        contract: { contract_type: is_even ? 'DIGITEVEN' : 'DIGITODD' },
     };
 };
 
@@ -199,6 +215,7 @@ const scanMatchesDiffers = (sample: TSample, differs_trades: number): TScanSigna
         confidence: Math.min(99, 100 * (1 - sample.freq[rarest])),
         note: `Digit ${rarest} is rarest at ${pct(sample.freq[rarest])}%`,
         plan: { bot: 'differs', digit: rarest, trade_count: differs_trades },
+        contract: { contract_type: 'DIGITDIFF', barrier: rarest },
     };
     if (!(sample.freq[top] > 0.11 && sample.freq[second] > 0.11)) return differs;
 
@@ -211,6 +228,7 @@ const scanMatchesDiffers = (sample: TSample, differs_trades: number): TScanSigna
         note: `Digit ${top} (${pct(sample.freq[top])}%) appears most — enters when ${second} (${pct(sample.freq[second])}%) shows`,
         entry_digit: second,
         plan: { bot: 'matches', side: 'DIGITMATCH', digit: top },
+        contract: { contract_type: 'DIGITMATCH', barrier: top },
     };
     return matches.confidence > differs.confidence ? matches : differs;
 };
@@ -245,6 +263,7 @@ const scanRiseFall = (sample: TSample): TScanSignal | null => {
         z_score: Math.round(z_score * 100) / 100,
         note: `Overall ${is_up ? 'up' : 'down'}trend over ${moves} ticks (${agree.toFixed(1)}% ${is_up ? 'up' : 'down'}). Enters ${is_up ? 'Rise' : 'Fall'} once ticks move that way.`,
         plan: { bot: 'risefall', side: is_up ? 'CALL' : 'PUT', duration: 1 },
+        contract: { contract_type: is_up ? 'CALL' : 'PUT' },
     };
 };
 
@@ -268,4 +287,29 @@ export const scanMarkets = (
         .filter((signal): signal is TScanSignal => signal !== null)
         .sort((a, b) => b.confidence - a.confidence);
     return { signals, scanned: samples.length };
+};
+
+/**
+ * Whether the market still meets the condition behind `signal`. Over/Under
+ * re-checks the signal's own rule; Even/Odd and Rise/Fall must still lead the
+ * same way. Matches/Differs bots run a fixed batch, so they are not re-checked.
+ */
+export const signalHolds = (signal: TScanSignal, market: TMarket): boolean => {
+    const sample = toSample(market);
+    if (!sample) return true;
+    if (signal.trade_type === 'overunder') return signal.rule ? rulePasses(signal.rule, sample.freq) : true;
+    if (signal.trade_type === 'evenodd') return scanEvenOdd(sample)?.direction === signal.direction;
+    if (signal.trade_type === 'risefall') return scanRiseFall(sample)?.direction === signal.direction;
+    return true;
+};
+
+/**
+ * What a martingale does after one loss, given the payout per 1 staked.
+ * `recovered` is the share of the lost stake a winning next trade wins back;
+ * `break_even` is the multiplier that wins back exactly the loss.
+ */
+export const martingaleRecovery = (payout: number, multiplier: number) => {
+    const profit = payout - 1;
+    if (!(profit > 0)) return null;
+    return { profit, recovered: multiplier * profit, break_even: 1 / profit };
 };

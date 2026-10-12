@@ -151,6 +151,10 @@
 
     &__note {
         margin-top: 0.6rem;
+
+        &--warn {
+            color: #ffad3a;
+        }
     }
 
     &__disclaimer {

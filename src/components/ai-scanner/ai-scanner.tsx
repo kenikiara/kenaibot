@@ -15,13 +15,24 @@ import {
     setXmlMarket,
 } from '@/utils/bot-workspace';
 import { localize } from '@deriv-com/translations';
-import { PLAN_BOT_FILES, SCAN_MARKETS, SCAN_TYPES, scanMarkets, TScanSignal, TScanType } from './market-scan';
+import {
+    martingaleRecovery,
+    PLAN_BOT_FILES,
+    SCAN_MARKETS,
+    SCAN_TYPES,
+    scanMarkets,
+    signalHolds,
+    TScanSignal,
+    TScanType,
+} from './market-scan';
 import './ai-scanner.scss';
 
 const SETTINGS_KEY = 'ai_scanner_settings';
 const POSITION_KEY = 'ai_scanner_pos';
 const BUTTON_SIZE = 56;
 const DATA_WAIT_MS = 12000;
+/** Consecutive ticks the signal's condition must fail before the running bot is stopped. */
+const GUARD_TICKS = 10;
 
 type TSettings = {
     type: TScanType;
@@ -41,7 +52,7 @@ const DEFAULTS: TSettings = {
     stake: 1,
     martingale: 2,
     take_profit: 10,
-    max_losses: 5,
+    max_losses: 3,
     multi_market: true,
     market: SCAN_MARKETS[0],
     differs_trades: 5,
@@ -183,6 +194,12 @@ const makeEntryWatcher = (signal: TScanSignal, onProgress: (text: string) => voi
         onProgress(localize('Waiting for digit {{digit}}', { digit: entry }));
         return (digit: number) => digit === entry;
     }
+    // Over_1_AI reads recent digits itself; the other Over/Under bots buy on the first tick.
+    if (signal.entry_after && plan.bot !== 'over1ai') {
+        const entry = signal.entry_after;
+        onProgress(localize('Waiting for digit {{digits}} to print', { digits: entry.join('/') }));
+        return (digit: number) => entry.includes(digit);
+    }
     if (signal.streak_entry && (plan.bot === 'oversingle' || plan.bot === 'undersingle')) {
         const is_under = plan.bot === 'undersingle';
         const barrier = plan.barrier;
@@ -214,14 +231,40 @@ const AiScanner = observer(() => {
     const [position, setPosition] = useState(() => readJson(POSITION_KEY, { x: -1, y: -1 }));
     const drag = useRef({ active: false, moved: false, dx: 0, dy: 0, sx: 0, sy: 0 });
     const stop_waiting = useRef<(() => void) | null>(null);
+    const stop_guard = useRef<(() => void) | null>(null);
+    const [payout, setPayout] = useState<number | null>(null);
 
     useEffect(() => writeJson(SETTINGS_KEY, settings), [settings]);
+
+    // Start streaming as soon as the panel opens, so a scan rarely waits for history.
+    useEffect(() => {
+        if (is_open) scannerFeed.start();
+    }, [is_open]);
+
+    useEffect(() => {
+        setPayout(null);
+        if (!signal) return;
+        let cancelled = false;
+        scannerFeed
+            .getPayout(signal.symbol, signal.contract)
+            .then(value => !cancelled && setPayout(value))
+            .catch(() => undefined);
+        return () => {
+            cancelled = true;
+        };
+    }, [signal]);
 
     useEffect(() => {
         if (position.x < 0) setPosition({ x: window.innerWidth - 84, y: window.innerHeight - 140 });
     }, [position.x]);
 
-    useEffect(() => () => stop_waiting.current?.(), []);
+    useEffect(
+        () => () => {
+            stop_waiting.current?.();
+            stop_guard.current?.();
+        },
+        []
+    );
 
     const update = <K extends keyof TSettings>(key: K, value: TSettings[K]) =>
         setSettings(current => ({ ...current, [key]: value }));
@@ -290,6 +333,35 @@ const AiScanner = observer(() => {
         setMessage('');
     };
 
+    /** Stops the bot once the market has failed the signal's condition for GUARD_TICKS ticks in a row. */
+    const guardSignal = (guarded: TScanSignal) => {
+        stop_guard.current?.();
+        let failing = 0;
+        let seen_running = false;
+        const unsubscribe = scannerFeed.onTick(market => {
+            if (market.symbol !== guarded.symbol) return;
+            if (run_panel.is_running) seen_running = true;
+            else if (seen_running) {
+                // the bot stopped on its own (take profit, max losses or the user)
+                unsubscribe();
+                stop_guard.current = null;
+                return;
+            }
+            failing = signalHolds(guarded, market) ? 0 : failing + 1;
+            if (failing < GUARD_TICKS) return;
+            unsubscribe();
+            stop_guard.current = null;
+            if (run_panel.is_running) run_panel.onStopButtonClick();
+            setMessage(
+                localize('Bot stopped: {{market}} no longer meets the {{direction}} signal.', {
+                    market: guarded.market_name,
+                    direction: guarded.direction,
+                })
+            );
+        });
+        stop_guard.current = unsubscribe;
+    };
+
     const loadSignal = async (auto_run: boolean) => {
         if (!signal) return;
         if (auto_run && !isAuthorized) {
@@ -327,6 +399,7 @@ const AiScanner = observer(() => {
             setPhase('found');
             setMessage('');
             if (!run_panel.is_running) run_panel.onRunButtonClick();
+            guardSignal(signal);
         };
 
         const watcher = makeEntryWatcher(signal, setMessage);
@@ -368,7 +441,11 @@ const AiScanner = observer(() => {
             </button>
 
             {is_open && (
-                <div className='ai-scanner__panel' style={{ left: panel_left, top: panel_top }} role='dialog'>
+                <div
+                    className='ai-scanner__panel'
+                    style={{ left: panel_left, top: panel_top, maxHeight: `calc(100vh - ${panel_top + 8}px)` }}
+                    role='dialog'
+                >
                     <div className='ai-scanner__head'>
                         <span className='ai-scanner__dot' />
                         <span className='ai-scanner__title'>{localize('AI Market Scanner')}</span>
@@ -493,6 +570,7 @@ const AiScanner = observer(() => {
                                     )}
                                 </div>
                                 <p className='ai-scanner__note'>{signal.note}</p>
+                                <MartingaleNote payout={payout} martingale={settings.martingale} />
                             </div>
                         )}
 
@@ -552,6 +630,28 @@ const AiScanner = observer(() => {
         </>
     );
 });
+
+const MartingaleNote = ({ payout, martingale }: { payout: number | null; martingale: number }) => {
+    const recovery = payout === null ? null : martingaleRecovery(payout, martingale);
+    if (!recovery) return null;
+    const percent = (n: number) => Math.round(n * 100);
+    const short = recovery.recovered < 1;
+    return (
+        <p className={classNames('ai-scanner__note', { 'ai-scanner__note--warn': short })}>
+            {localize('A win pays +{{profit}}% of the stake.', { profit: percent(recovery.profit) })}{' '}
+            {short
+                ? localize(
+                      'After a loss, ×{{martingale}} wins back only {{recovered}}% of it; breaking even needs ×{{break_even}}. Keep Max losses low.',
+                      {
+                          martingale,
+                          recovered: percent(recovery.recovered),
+                          break_even: recovery.break_even.toFixed(1),
+                      }
+                  )
+                : localize('After a loss, ×{{martingale}} wins it back.', { martingale })}
+        </p>
+    );
+};
 
 const NumberInput = ({
     id,
