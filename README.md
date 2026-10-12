@@ -1,5 +1,10 @@
 # Deriv Trading Bot
 
+**Live app:** https://kenikiara.github.io/kenaibot/
+
+> Testers: log in with a **demo** account first. Auto Trades, the AI scanner's "Load & Run"
+> and the Best Bots place real contracts on whichever account is logged in.
+
 A self-hosted, visual trading-bot builder on the Deriv WebSocket API. Drag-and-drop
 strategy building with Blockly, an interactive SmartCharts chart, automated strategy
 execution, and dashboard/tutorials.

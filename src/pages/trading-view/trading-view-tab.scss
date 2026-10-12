@@ -1,0 +1,56 @@
+.trading-view-tab {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: calc(100vh - 14rem);
+    min-height: 48rem;
+
+    &__sync {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 1.6rem;
+        background: var(--general-section-1);
+        font-size: 1.3rem;
+
+        select {
+            height: 3.4rem;
+            padding: 0 0.8rem;
+            border: 1px solid var(--border-normal);
+            border-radius: 0.6rem;
+            background: var(--general-main-1);
+            color: var(--text-prominent);
+        }
+
+        button {
+            height: 3.4rem;
+            padding: 0 1.4rem;
+            border: none;
+            border-radius: 0.6rem;
+            background: var(--button-primary-default);
+            color: #fff;
+            font-weight: 700;
+            cursor: pointer;
+        }
+    }
+
+    &__label {
+        font-weight: 700;
+        color: var(--text-prominent);
+    }
+
+    &__status {
+        color: var(--text-less-prominent);
+    }
+
+    &__chart {
+        flex: 1;
+        min-height: 0;
+
+        iframe {
+            display: block;
+            border: none;
+        }
+    }
+}

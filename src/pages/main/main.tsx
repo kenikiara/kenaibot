@@ -3,6 +3,7 @@ import React, { lazy, Suspense, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { observer } from 'mobx-react-lite';
 import { useLocation, useNavigate } from 'react-router';
+import AiScanner from '@/components/ai-scanner/ai-scanner';
 import ChunkLoader from '@/components/loader/chunk-loader';
 import { generateOAuthURL } from '@/components/shared';
 import DesktopWrapper from '@/components/shared_ui/desktop-wrapper';
@@ -51,13 +52,16 @@ import RunStrategy from '../dashboard/run-strategy';
 import './main.scss';
 
 const BestBots = lazy(() => import('../best-bots'));
-const ChartWrapper = lazy(() => import('../chart/chart-wrapper'));
+const AiAnalysis = lazy(() => import('../ai-analysis'));
+const Danalysis = lazy(() => import('../danalysis'));
+const TradingViewTab = lazy(() => import('../trading-view'));
+const RiskManagement = lazy(() => import('../risk-management'));
 const Scanner = lazy(() => import('../scanner'));
 const EvenOddSession = lazy(() => import('../even-odd-session/even-odd-session'));
 const OverUnder = lazy(() => import('../over-under/over-under'));
 const MillionBot = lazy(() => import('../million-bot/million-bot'));
 const ManualTrader = lazy(() => import('../trading/manual-trader'));
-const AutoTrades = lazy(() => import('../trading/auto-trades'));
+const AutoTrades = lazy(() => import('../auto-trades-pro'));
 const Tutorial = lazy(() => import('../tutorials'));
 
 const AppWrapper = observer(() => {
@@ -95,13 +99,16 @@ const AppWrapper = observer(() => {
         'dashboard',
         'bot_builder',
         'best_bots',
+        'ai_analysis',
         'chart',
+        'auto_trades',
+        'trading_view',
         'scanner',
         'even_odd_session',
         'over_under',
         'million_bot',
         'manual_trader',
-        'auto_trades',
+        'risk_management',
         'tutorial',
     ];
     const { isDesktop } = useDevice();
@@ -450,12 +457,31 @@ const AppWrapper = observer(() => {
                             <div
                                 label={
                                     <>
+                                        <LabelPairedChartMixedCaptionRegularIcon
+                                            height='24px'
+                                            width='24px'
+                                            fill='var(--text-general)'
+                                        />
+                                        <Localize i18n_default_text='AI Analysis' />
+                                    </>
+                                }
+                                id='id-ai-analysis'
+                            >
+                                <Suspense
+                                    fallback={<ChunkLoader message={localize('Please wait, loading analysis...')} />}
+                                >
+                                    <AiAnalysis />
+                                </Suspense>
+                            </div>
+                            <div
+                                label={
+                                    <>
                                         <LabelPairedChartLineCaptionRegularIcon
                                             height='24px'
                                             width='24px'
                                             fill='var(--text-general)'
                                         />
-                                        <Localize i18n_default_text='Charts' />
+                                        <Localize i18n_default_text='Danalysis' />
                                     </>
                                 }
                                 id={
@@ -464,10 +490,44 @@ const AppWrapper = observer(() => {
                                         : 'id-charts'
                                 }
                             >
+                                <Danalysis />
+                            </div>
+                            <div
+                                label={
+                                    <>
+                                        <LabelPairedArrowsRotateCaptionRegularIcon
+                                            height='24px'
+                                            width='24px'
+                                            fill='var(--text-general)'
+                                        />
+                                        <Localize i18n_default_text='Auto Trades' />
+                                    </>
+                                }
+                                id='id-auto-trades'
+                            >
                                 <Suspense
-                                    fallback={<ChunkLoader message={localize('Please wait, loading chart...')} />}
+                                    fallback={<ChunkLoader message={localize('Please wait, loading auto trades...')} />}
                                 >
-                                    <ChartWrapper show_digits_stats={false} />
+                                    <AutoTrades />
+                                </Suspense>
+                            </div>
+                            <div
+                                label={
+                                    <>
+                                        <LabelPairedChartCandlestickCaptionRegularIcon
+                                            height='24px'
+                                            width='24px'
+                                            fill='var(--text-general)'
+                                        />
+                                        <Localize i18n_default_text='Trading View' />
+                                    </>
+                                }
+                                id='id-trading-view'
+                            >
+                                <Suspense
+                                    fallback={<ChunkLoader message={localize('Please wait, loading Trading View...')} />}
+                                >
+                                    <TradingViewTab />
                                 </Suspense>
                             </div>
                             <div
@@ -568,20 +628,20 @@ const AppWrapper = observer(() => {
                             <div
                                 label={
                                     <>
-                                        <LabelPairedArrowsRotateCaptionRegularIcon
+                                        <LabelPairedGaugeMaxCaptionRegularIcon
                                             height='24px'
                                             width='24px'
                                             fill='var(--text-general)'
                                         />
-                                        <Localize i18n_default_text='Auto Trades' />
+                                        <Localize i18n_default_text='Risk Management' />
                                     </>
                                 }
-                                id='id-auto-trades'
+                                id='id-risk-management'
                             >
                                 <Suspense
-                                    fallback={<ChunkLoader message={localize('Please wait, loading auto trades...')} />}
+                                    fallback={<ChunkLoader message={localize('Please wait, loading risk management...')} />}
                                 >
-                                    <AutoTrades />
+                                    <RiskManagement />
                                 </Suspense>
                             </div>
                             <div
@@ -621,6 +681,7 @@ const AppWrapper = observer(() => {
                 <ChartModal />
                 <TradingViewModal />
             </DesktopWrapper>
+            <AiScanner />
             <MobileWrapper>{!is_open && <RunPanel />}</MobileWrapper>
             <Dialog
                 cancel_button_text={cancel_button_text || localize('Cancel')}

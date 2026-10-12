@@ -1,0 +1,297 @@
+.ai-analysis {
+    display: flex;
+    height: 100%;
+    background: var(--general-main-1);
+    color: var(--text-general);
+
+    &__sidebar {
+        flex-shrink: 0;
+        width: 22rem;
+        padding: 1.6rem;
+        overflow-y: auto;
+        border-right: 1px solid var(--general-section-1);
+
+        h3 {
+            margin: 0 0 1.2rem;
+            font-size: 1.6rem;
+            color: var(--text-prominent);
+        }
+    }
+
+    &__group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        margin-bottom: 1.6rem;
+        padding: 0.8rem;
+        border-radius: 0.8rem;
+        background: var(--general-section-1);
+    }
+
+    &__group-title {
+        padding: 0.4rem 0.6rem;
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--text-prominent);
+    }
+
+    &__nav {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.8rem;
+        border: none;
+        border-radius: 0.6rem;
+        background: transparent;
+        color: var(--text-general);
+        font-size: 1.3rem;
+        text-align: left;
+        cursor: pointer;
+
+        &--active {
+            background: var(--general-main-1);
+            font-weight: 700;
+            color: var(--text-prominent);
+        }
+    }
+
+    &__nav-icon {
+        min-width: 2.4rem;
+        font-size: 1.1rem;
+        color: var(--text-less-prominent);
+    }
+
+    &__main {
+        flex: 1;
+        padding: 1.6rem 2.4rem 4rem;
+        overflow-y: auto;
+    }
+
+    &__title {
+        margin-bottom: 1.6rem;
+        padding: 1.6rem;
+        border-radius: 0.8rem;
+        background: var(--general-section-1);
+        font-size: 1.6rem;
+        font-weight: 700;
+        text-align: center;
+        color: var(--text-prominent);
+    }
+
+    &__controls {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 1.2rem;
+        margin-bottom: 1.6rem;
+
+        label {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            font-size: 1.2rem;
+        }
+
+        select {
+            height: 3.6rem;
+            padding: 0 0.8rem;
+            border: 1px solid var(--border-normal);
+            border-radius: 0.6rem;
+            background: var(--general-main-1);
+            color: var(--text-prominent);
+        }
+    }
+
+    &__last {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.4rem;
+        margin-bottom: 1.6rem;
+        font-size: 1.2rem;
+        color: var(--text-less-prominent);
+
+        b {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 6.4rem;
+            height: 6.4rem;
+            border: 0.3rem solid #00a76f;
+            border-radius: 50%;
+            font-size: 3rem;
+            color: #00a76f;
+        }
+    }
+
+    &__panels {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(26rem, 1fr));
+        gap: 1.6rem;
+        margin-top: 2.4rem;
+    }
+
+    &__card {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1.6rem;
+        border-radius: 1rem;
+        background: var(--general-section-1);
+
+        h4 {
+            margin: 0;
+            font-size: 1.4rem;
+            color: var(--text-prominent);
+        }
+
+        p {
+            margin: 0;
+            font-size: 1.3rem;
+        }
+
+        small {
+            font-size: 1.1rem;
+            color: var(--text-less-prominent);
+        }
+    }
+
+    &__split {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+
+        div {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+            font-size: 1.3rem;
+        }
+
+        b {
+            color: var(--text-prominent);
+        }
+    }
+
+    &__selectors {
+        display: flex;
+        gap: 1.2rem;
+
+        label {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 1.3rem;
+        }
+
+        select {
+            height: 3.2rem;
+            padding: 0 0.6rem;
+            border: 1px solid var(--border-normal);
+            border-radius: 0.6rem;
+            background: var(--general-main-1);
+            color: var(--text-prominent);
+        }
+    }
+
+    &__bar {
+        height: 0.8rem;
+        border-radius: 0.4rem;
+        background: #ff444f;
+        overflow: hidden;
+    }
+
+    &__bar-even {
+        height: 100%;
+        background: #00a76f;
+    }
+
+    &__recent {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+    }
+
+    &__recent-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-width: 3rem;
+        padding: 0.4rem;
+        border-radius: 0.6rem;
+        background: var(--general-main-1);
+        font-size: 1.4rem;
+        font-weight: 700;
+
+        small {
+            font-size: 1rem;
+        }
+
+        &--e,
+        &--o,
+        &--u,
+        &--m {
+            color: #00a76f;
+        }
+
+        &--o {
+            color: #ff444f;
+        }
+
+        &--u {
+            color: #2a9df4;
+        }
+    }
+
+    &__signal-headline {
+        font-size: 1.5rem !important;
+        font-weight: 700;
+
+        &--active {
+            color: #00a76f;
+        }
+    }
+
+    &__strength {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        font-size: 1.2rem;
+    }
+
+    &__meter {
+        height: 0.6rem;
+        border-radius: 0.3rem;
+        background: var(--general-main-1);
+        overflow: hidden;
+
+        div {
+            height: 100%;
+            background: linear-gradient(90deg, #f5b301, #00a76f);
+        }
+    }
+
+    &__empty {
+        font-size: 1.4rem;
+        color: var(--text-less-prominent);
+    }
+}
+
+@media (max-width: 767px) {
+    .ai-analysis {
+        flex-direction: column;
+
+        &__sidebar {
+            width: 100%;
+            border-right: none;
+        }
+
+        &__main {
+            padding: 1.6rem;
+        }
+
+        &__controls {
+            justify-content: flex-start;
+        }
+    }
+}

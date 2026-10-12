@@ -65,6 +65,11 @@
         }
 
         .dc-tabs {
+            // Keep the column at the container width; the tab list scrolls instead of widening the page
+            &--main__tabs {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
             &__active-line {
                 background-color: var(--general-main-1);
                 transition: none;

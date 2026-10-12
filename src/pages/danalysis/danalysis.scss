@@ -1,0 +1,46 @@
+.danalysis {
+    position: relative;
+    height: 100%;
+
+    &__digits {
+        position: absolute;
+        bottom: 9rem;
+        left: 50%;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        max-width: calc(100% - 3.2rem);
+        padding: 1rem 1.4rem 1.6rem;
+        border-radius: 1rem;
+        background: var(--general-main-1);
+        box-shadow: 0 0.4rem 1.6rem rgba(0, 0, 0, 0.15);
+        transform: translateX(-50%);
+
+        .digit-stats {
+            flex-wrap: nowrap;
+            gap: 0.6rem;
+        }
+    }
+
+    &__window {
+        height: 3.2rem;
+        padding: 0 0.8rem;
+        border: 1px solid var(--border-normal);
+        border-radius: 0.6rem;
+        background: var(--general-main-1);
+        color: var(--text-prominent);
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 767px) {
+    .danalysis__digits {
+        bottom: 1.6rem;
+        flex-direction: column;
+
+        .digit-stats {
+            flex-wrap: wrap;
+        }
+    }
+}

@@ -2,8 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { observer } from 'mobx-react-lite';
 import { DBOT_TABS } from '@/constants/bot-contents';
-import { load, save_types } from '@/external/bot-skeleton';
 import { useStore } from '@/hooks/useStore';
+import { loadStrategyXml, publicXmlUrl } from '@/utils/bot-workspace';
 import { Localize, localize } from '@deriv-com/translations';
 import './best-bots.scss';
 
@@ -19,9 +19,7 @@ type TBestBot = {
     youtube_url?: string;
 };
 
-const BOTS_DIR = 'xml/best-bots/';
-
-const botsUrl = (file: string) => `${window.__webpack_public_path__ ?? '/'}${BOTS_DIR}${encodeURIComponent(file)}`;
+const botsUrl = (file: string) => publicXmlUrl(`best-bots/${file}`);
 
 const CATEGORIES: { value: TBotCategory; label: string }[] = [
     { value: 'free', label: localize('Free Bots') },
@@ -62,18 +60,7 @@ const BestBots = observer(() => {
         try {
             const response = await fetch(botsUrl(bot.file));
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            const xml = await response.text();
-
-            const result = await load({
-                block_string: xml,
-                file_name: bot.name,
-                workspace: window.Blockly?.derivWorkspace,
-                from: save_types.UNSAVED,
-                drop_event: {},
-                strategy_id: null,
-                showIncompatibleStrategyDialog: false,
-            });
-            if (result?.error) throw new Error(result.error);
+            await loadStrategyXml(await response.text(), bot.name);
             dashboard.setActiveTab(DBOT_TABS.BOT_BUILDER);
         } catch {
             setLoadError(localize('{{bot_name}} could not be loaded. Please try again.', { bot_name: bot.name }));
