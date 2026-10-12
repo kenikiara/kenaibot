@@ -113,9 +113,9 @@ describe('nextStake', () => {
 });
 
 describe('registry', () => {
-    it('lists all 18 strategies with unique ids and valid defaults', () => {
-        expect(AUTO_STRATEGIES).toHaveLength(18);
-        expect(new Set(AUTO_STRATEGIES.map(s => s.id)).size).toBe(18);
+    it('lists all 19 strategies with unique ids and valid defaults', () => {
+        expect(AUTO_STRATEGIES).toHaveLength(19);
+        expect(new Set(AUTO_STRATEGIES.map(s => s.id)).size).toBe(19);
         AUTO_STRATEGIES.forEach(strategy => {
             strategy.fields.forEach(field => expect(strategy.defaults).toHaveProperty(field.key));
             const runtime = create(strategy);

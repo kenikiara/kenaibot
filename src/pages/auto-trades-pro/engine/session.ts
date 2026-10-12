@@ -140,6 +140,11 @@ class AutoSession {
         if (this.status === 'idle') return;
         this.unsubscribe_tick?.();
         this.unsubscribe_tick = null;
+        try {
+            this.runtime?.onStop?.();
+        } catch (error) {
+            this.addLog('warn', `Strategy error: ${(error as Error).message}`);
+        }
         this.status = 'idle';
         this.stop_reason = reason;
         this.addLog('info', reason);
@@ -176,6 +181,11 @@ class AutoSession {
             });
         } catch (error) {
             this.addLog('warn', `Strategy error: ${(error as Error).message}`);
+            return;
+        }
+        const stop_reason = runtime.stopReason?.();
+        if (stop_reason) {
+            this.stop(stop_reason);
             return;
         }
         if (order && can_trade) this.execute(order);

@@ -81,6 +81,10 @@ export type TRuntime = {
     onSettled?: (outcome: TOutcome, money: TMoneySettings) => void;
     /** Short status lines shown under the settings while running. */
     status: () => string[];
+    /** Checked after every tick: stop the session with this reason (strategies that trade through the Bot Builder). */
+    stopReason?: () => string | false;
+    /** Called when the session stops, for any reason. */
+    onStop?: () => void;
     /** Stop after this outcome (one-shot strategies). Returns the reason, or false to continue. */
     finishAfter?: (outcome: TOutcome) => string | false;
 };

@@ -60,16 +60,56 @@ export const setupChecks = (setup: TSetup, bars: TBars) => {
     ];
 };
 
-const sideName = (side: TSide) => (side === 'over' ? 'Over' : 'Under');
+export const sideName = (side: TSide) => (side === 'over' ? 'Over' : 'Under');
 
-type TCandidate = {
+export type TOsmanCandidate = {
     symbol: string;
     setup: TSetup;
     barrier: number;
+    /** Share of the window's digits that would have won this contract. */
     win_share: number;
     bars: TBars;
     checks: { label: string; ok: boolean }[];
 };
+
+export type TOsmanScanOptions = { symbols: string[]; side: string; window: number; over_barrier: number; under_barrier: number };
+
+/**
+ * Checks every market for the Osman setups. `ready` holds the setups meeting
+ * every condition, best win share first; `closest` is the nearest miss when
+ * none are ready; `collecting` counts markets still short of the window.
+ */
+export const scanOsman = (markets: Map<string, TMarket>, options: TOsmanScanOptions) => {
+    const setups = SETUPS.filter(setup => options.side === 'both' || options.side === setup.side);
+    const ready: TOsmanCandidate[] = [];
+    const seen: TOsmanCandidate[] = [];
+    let collecting = 0;
+    options.symbols.forEach(symbol => {
+        const digits = markets.get(symbol)?.digits.slice(-options.window) ?? [];
+        if (digits.length < options.window) {
+            collecting++;
+            return;
+        }
+        const bars = digitBars(digits);
+        setups.forEach(setup => {
+            const barrier = setup.side === 'over' ? options.over_barrier : options.under_barrier;
+            const wins = digits.filter(d => (setup.side === 'over' ? d > barrier : d < barrier)).length;
+            const candidate = { symbol, setup, barrier, bars, checks: setupChecks(setup, bars), win_share: (100 * wins) / digits.length };
+            seen.push(candidate);
+            if (candidate.checks.every(c => c.ok)) ready.push(candidate);
+        });
+    });
+    ready.sort((a, b) => b.win_share - a.win_share);
+    const okCount = (c: TOsmanCandidate) => c.checks.filter(check => check.ok).length;
+    const closest = ready.length ? null : ([...seen].sort((a, b) => okCount(b) - okCount(a) || b.win_share - a.win_share)[0] ?? null);
+    return { ready, closest, collecting };
+};
+
+/** "Volatility 25 Index — Over 1: ✓ 0 at 9.2% (< 10.5%) · …" */
+export const osmanChecklist = (c: TOsmanCandidate) =>
+    `${marketName(c.symbol)} — ${sideName(c.setup.side)} ${c.barrier}: ${c.checks
+        .map(check => `${check.ok ? '✓' : '✗'} ${check.label}`)
+        .join(' · ')}`;
 
 export const osman: TStrategy = {
     id: 'osman',
@@ -156,47 +196,20 @@ export const osman: TStrategy = {
                       collecting ? ` (${collecting} still loading ticks)` : ''
                   } · setups completed: ${setups_done}`;
 
-        const evaluate = (market: TMarket) => {
-            const digits = market.digits.slice(-window);
-            if (digits.length < window) return null;
-            const bars = digitBars(digits);
-            return setups.map(setup => {
-                const barrier = barrierFor(setup.side);
-                const wins = digits.filter(d => (setup.side === 'over' ? d > barrier : d < barrier)).length;
-                return {
-                    setup,
-                    barrier,
-                    bars,
-                    checks: setupChecks(setup, bars),
-                    win_share: (100 * wins) / digits.length,
-                };
-            });
+        const scan_options = {
+            symbols,
+            side: String(s.side),
+            window,
+            over_barrier: barrierFor('over'),
+            under_barrier: barrierFor('under'),
         };
-
-        const checklist = (symbol: string, item: NonNullable<ReturnType<typeof evaluate>>[number]) =>
-            `${marketName(symbol)} — ${sideName(item.setup.side)} ${item.barrier}: ${item.checks
-                .map(c => `${c.ok ? '✓' : '✗'} ${c.label}`)
-                .join(' · ')}`;
 
         return {
             symbols,
             onTick: ctx => {
-                const ready: TCandidate[] = [];
-                const seen: { symbol: string; item: NonNullable<ReturnType<typeof evaluate>>[number] }[] = [];
-                collecting = 0;
-                symbols.forEach(symbol => {
-                    const market = ctx.markets.get(symbol);
-                    const evaluated = market ? evaluate(market) : null;
-                    if (!evaluated) {
-                        collecting++;
-                        return;
-                    }
-                    evaluated.forEach(item => {
-                        seen.push({ symbol, item });
-                        if (item.checks.every(c => c.ok)) ready.push({ symbol, ...item });
-                    });
-                });
-                ready.sort((a, b) => b.win_share - a.win_share);
+                const scan = scanOsman(ctx.markets, scan_options);
+                const { ready, closest } = scan;
+                collecting = scan.collecting;
 
                 // A locked setup keeps its market while its conditions hold; otherwise the best ready one is the target.
                 if (locked) {
@@ -215,7 +228,7 @@ export const osman: TStrategy = {
 
                 notes = [entryNote];
                 if (target) {
-                    notes.push(`Best: ${checklist(target.symbol, target)} · win share ${pct(target.win_share)}`);
+                    notes.push(`Best: ${osmanChecklist(target)} · win share ${pct(target.win_share)}`);
                     const others = ready.filter(c => c !== target).slice(0, 3);
                     if (others.length)
                         notes.push(
@@ -223,14 +236,8 @@ export const osman: TStrategy = {
                                 .map(c => `${sideName(c.setup.side)} ${c.barrier} on ${marketName(c.symbol)} (${pct(c.win_share)})`)
                                 .join(', ')}`
                         );
-                } else if (seen.length) {
-                    // nothing ready: show the closest setup's checklist
-                    const closest = [...seen].sort(
-                        (a, b) =>
-                            b.item.checks.filter(c => c.ok).length - a.item.checks.filter(c => c.ok).length ||
-                            b.item.win_share - a.item.win_share
-                    )[0];
-                    notes.push(`No setup meets every condition. Closest: ${checklist(closest.symbol, closest.item)}`);
+                } else if (closest) {
+                    notes.push(`No setup meets every condition. Closest: ${osmanChecklist(closest)}`);
                 }
 
                 if (!target || ctx.market.symbol !== target.symbol || !ctx.can_trade) return null;
@@ -239,7 +246,7 @@ export const osman: TStrategy = {
 
                 if (!locked) {
                     locked = { symbol: target.symbol, side: target.setup.side, done: 0 };
-                    ctx.log(`Setup found: ${checklist(target.symbol, target)} · win share ${pct(target.win_share)}`);
+                    ctx.log(`Setup found: ${osmanChecklist(target)} · win share ${pct(target.win_share)}`);
                 }
                 const weak = target.setup.weak.map(d => `${d}=${pct(target.bars.percents[d])}`).join(', ');
                 return {

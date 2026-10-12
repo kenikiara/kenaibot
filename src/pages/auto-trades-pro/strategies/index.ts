@@ -10,6 +10,7 @@ import {
     rcRiseFall,
 } from './patterns';
 import { osman } from './osman';
+import { osmanBot } from './osman-bot';
 import { aiScanner, aMatchesDiffers, matchesSignalProvider, multipleMatches, over5Under4 } from './scanners';
 import { demoEvenOdd, demoOver5, fastOverUnder, multimarket } from './virtual-gate';
 
@@ -17,6 +18,7 @@ import { demoEvenOdd, demoOver5, fastOverUnder, multimarket } from './virtual-ga
 export const AUTO_STRATEGIES: TStrategy[] = [
     aiScanner,
     osman,
+    osmanBot,
     multimarket,
     rcEvenOdd,
     rcOver4Under5,
