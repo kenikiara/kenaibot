@@ -7,52 +7,74 @@ const DERIV_ACCOUNTS_KEY = 'deriv_accounts';
 const ACTIVE_LOGINID_KEY = 'active_loginid';
 const ACCOUNT_TYPE_KEY = 'account_type';
 
-const TOKEN_MAX_AGE_MS = 10 * 60 * 1000; // 10 minutes
+// Long enough for a sign-up that waits on an email verification.
+const TOKEN_MAX_AGE_MS = 30 * 60 * 1000; // 30 minutes
 
-// --- CSRF Token ---
-
-export function storeCSRFToken(token: string): void {
-  const stored: StoredCSRFToken = { value: token, createdAt: Date.now() };
-  sessionStorage.setItem(CSRF_TOKEN_KEY, JSON.stringify(stored));
+// The CSRF token and PKCE verifier are kept in localStorage (with a sessionStorage
+// copy) so a login that finishes in another tab of the same browser — social
+// logins and email verification links often open one — can still complete.
+function storeFlowValue(key: string, value: string): void {
+  const raw = JSON.stringify({ value, createdAt: Date.now() });
+  sessionStorage.setItem(key, raw);
+  try {
+    localStorage.setItem(key, raw);
+  } catch {
+    // localStorage unavailable (private mode): the tab-scoped copy still works
+  }
 }
 
-export function getCSRFToken(): string | null {
-  const raw = sessionStorage.getItem(CSRF_TOKEN_KEY);
+function readFlowValue(key: string): string | null {
+  let raw = sessionStorage.getItem(key);
+  try {
+    raw = raw ?? localStorage.getItem(key);
+  } catch {
+    // localStorage unavailable
+  }
   if (!raw) return null;
 
-  const stored: StoredCSRFToken = JSON.parse(raw);
+  const stored: StoredCSRFToken | StoredCodeVerifier = JSON.parse(raw);
   if (Date.now() - stored.createdAt > TOKEN_MAX_AGE_MS) {
-    clearCSRFToken();
+    clearFlowValue(key);
     return null;
   }
   return stored.value;
 }
 
+function clearFlowValue(key: string): void {
+  sessionStorage.removeItem(key);
+  try {
+    localStorage.removeItem(key);
+  } catch {
+    // localStorage unavailable
+  }
+}
+
+// --- CSRF Token ---
+
+export function storeCSRFToken(token: string): void {
+  storeFlowValue(CSRF_TOKEN_KEY, token);
+}
+
+export function getCSRFToken(): string | null {
+  return readFlowValue(CSRF_TOKEN_KEY);
+}
+
 export function clearCSRFToken(): void {
-  sessionStorage.removeItem(CSRF_TOKEN_KEY);
+  clearFlowValue(CSRF_TOKEN_KEY);
 }
 
 // --- PKCE Code Verifier ---
 
 export function storeCodeVerifier(verifier: string): void {
-  const stored: StoredCodeVerifier = { value: verifier, createdAt: Date.now() };
-  sessionStorage.setItem(CODE_VERIFIER_KEY, JSON.stringify(stored));
+  storeFlowValue(CODE_VERIFIER_KEY, verifier);
 }
 
 export function getCodeVerifier(): string | null {
-  const raw = sessionStorage.getItem(CODE_VERIFIER_KEY);
-  if (!raw) return null;
-
-  const stored: StoredCodeVerifier = JSON.parse(raw);
-  if (Date.now() - stored.createdAt > TOKEN_MAX_AGE_MS) {
-    clearCodeVerifier();
-    return null;
-  }
-  return stored.value;
+  return readFlowValue(CODE_VERIFIER_KEY);
 }
 
 export function clearCodeVerifier(): void {
-  sessionStorage.removeItem(CODE_VERIFIER_KEY);
+  clearFlowValue(CODE_VERIFIER_KEY);
 }
 
 // --- Auth Info ---
