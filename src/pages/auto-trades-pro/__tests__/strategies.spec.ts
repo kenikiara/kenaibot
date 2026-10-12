@@ -385,47 +385,88 @@ describe('Osman', () => {
     const OVER_READY = { 0: 95, 1: 95, 2: 80, 3: 120, 4: 100, 5: 100, 6: 100, 7: 105, 8: 100, 9: 105 };
     // 8 and 9 at 9.5%, red bar on 2, green bar on 3; 1 at 10.5% so Over is off
     const UNDER_READY = { 0: 100, 1: 105, 2: 80, 3: 120, 4: 100, 5: 100, 6: 100, 7: 105, 8: 95, 9: 95 };
+    const single = { scope: 'single' };
 
     it('buys Over 1 when 0 and 1 are under 10.5% and the last digit is 5 or 6', () => {
-        const runtime = create(osman);
+        const runtime = create(osman, single);
         const { order, index } = feed(runtime, 'R_100', [2, 8, 5], { history: history(OVER_READY) });
         expect(index).toBe(2);
         expect(order?.legs[0]).toMatchObject({ contract_type: 'DIGITOVER', barrier: 1 });
     });
 
     it('buys Under 8 when 8 and 9 are under 10.5% and the last digit is 4, 7 or 9', () => {
-        const runtime = create(osman);
+        const runtime = create(osman, single);
         const { order, index } = feed(runtime, 'R_100', [5, 7], { history: history(UNDER_READY) });
         expect(index).toBe(1);
         expect(order?.legs[0]).toMatchObject({ contract_type: 'DIGITUNDER', barrier: 8 });
     });
 
-    it('waits while a checked digit holds the red or green bar', () => {
+    it('waits while a checked digit holds the red or green bar, and marks the failed condition', () => {
         // 0 is now the red bar (lowest)
-        const runtime = create(osman);
+        const runtime = create(osman, single);
         const counts = { ...OVER_READY, 0: 70, 2: 105, 7: 110 };
         expect(feed(runtime, 'R_100', [5, 6], { history: history(counts) }).order).toBeNull();
+        expect(runtime.status().join(' ')).toMatch(/✗ 0 has the red bar/);
         // 5 is now the green bar
-        const runtime2 = create(osman);
+        const runtime2 = create(osman, single);
         const counts2 = { ...OVER_READY, 5: 125, 3: 95 };
         expect(feed(runtime2, 'R_100', [6, 5], { history: history(counts2) }).order).toBeNull();
     });
 
     it('respects the side setting', () => {
-        const runtime = create(osman, { side: 'under' });
+        const runtime = create(osman, { ...single, side: 'under' });
         expect(feed(runtime, 'R_100', [5, 6], { history: history(OVER_READY) }).order).toBeNull();
     });
 
-    it('stops after the set number of runs', () => {
-        const runtime = create(osman, { runs: 3 });
-        const { order } = feed(runtime, 'R_100', [5], { history: history(OVER_READY) });
+    it('trades only the market with the highest win share', () => {
+        const runtime = create(osman);
+        // R_25: 0 and 1 at 9.0% → Over 1 wins 82%; R_10: 9.5% each → 81%
+        const better = history({ ...OVER_READY, 0: 90, 1: 90, 7: 110, 9: 110 });
+        const markets = new Map([
+            ['R_10', makeMarket('R_10', [...history(OVER_READY), 5])],
+            ['R_25', makeMarket('R_25', [...better, 6])],
+        ]);
+        const tick = (symbol: string) =>
+            runtime.onTick({
+                market: markets.get(symbol)!,
+                markets,
+                can_trade: true,
+                money: MONEY,
+                virtual: () => undefined,
+                log: () => undefined,
+            });
+        expect(tick('R_10')).toBeNull();
+        expect(tick('R_25')?.legs[0]).toMatchObject({ symbol: 'R_25', contract_type: 'DIGITOVER', barrier: 1 });
+        expect(runtime.status().join(' ')).toMatch(/Also ready: Over 1 on Volatility 10 Index/);
+    });
+
+    it('runs a setup 3 times, then scans for the next one', () => {
+        const runtime = create(osman, single);
         const settle = (is_win: boolean) => {
+            const { order } = feed(runtime, 'R_100', [5], { history: history(OVER_READY) });
             const result = outcome(order!, is_win);
             runtime.onSettled?.(result, MONEY);
             return runtime.finishAfter?.(result);
         };
         expect(settle(true)).toBe(false);
+        expect(runtime.status()[0]).toMatch(/run 2\/3/);
         expect(settle(false)).toBe(false);
-        expect(settle(true)).toMatch(/3 runs done/);
+        expect(settle(true)).toBe(false);
+        expect(runtime.status()[0]).toMatch(/Running|Scanning/);
+        feed(runtime, 'R_100', [2], { history: history(OVER_READY) });
+        expect(runtime.status()[0]).toMatch(/Scanning 1 market · setups completed: 1/);
+    });
+
+    it('stops after the runs when set to stop', () => {
+        const runtime = create(osman, { ...single, after_runs: 'stop' });
+        const { order } = feed(runtime, 'R_100', [5], { history: history(OVER_READY) });
+        const settle = () => {
+            const result = outcome(order!, true);
+            runtime.onSettled?.(result, MONEY);
+            return runtime.finishAfter?.(result);
+        };
+        expect(settle()).toBe(false);
+        expect(settle()).toBe(false);
+        expect(settle()).toMatch(/3 runs done/);
     });
 });
